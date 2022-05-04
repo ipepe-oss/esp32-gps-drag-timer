@@ -3,7 +3,7 @@ GPS 10hz and ESP32 based opensource Drag Timer
 
 ## Features
 Measuring:
- * Any combination of X-Y km/h or m/h
+ * Any combination of X-Y km/h or m/h (including decceleration for breaking tests)
  * Any combination of distance in meters or feet
  * Gradient change for measurement
  * Continious measurement mode
