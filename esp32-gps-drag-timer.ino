@@ -1,14 +1,30 @@
-#include "BluetoothSerial.h"
+#include <Wire.h>  
+#include "SSD1306Wire.h"
+#include "TinyGPS++.h"
+TinyGPSPlus gps;
+
+
+#define SDA 5
+#define SCL 4
+SSD1306Wire  display(0x3c, SDA, SCL);
+
 
 //gps pinout
 // P16 - blue
 // P17 - green
-// P4 - yellow
-// 3.3V - red
+// P21 - yellow
+// 3.3V/VCC - red
 // GND - black
 
-BluetoothSerial SerialBT;
-const int GPS_MODULE_ENABLE = 4;
+void printSpeed(void) {
+  display.clear();
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.setFont(ArialMT_Plain_24);
+  display.drawString(64, 40, String(gps.speed.kmph() + String(" km/h")));
+  display.display();
+}
+
+const int GPS_MODULE_ENABLE = 21;
 
 const unsigned char ubxRate10Hz[] PROGMEM =
   { 0x06,0x08,0x06,0x00,100,0x00,0x01,0x00,0x01,0x00 };
@@ -35,7 +51,10 @@ void setup() {
   pinMode(GPS_MODULE_ENABLE, OUTPUT);
   digitalWrite(GPS_MODULE_ENABLE, HIGH);
   
-  Serial.begin(115200);
+  Serial.begin(115200); // USB Serial
+
+  // Setup GPS Serial to 10hz and 115200
+  
   Serial2.begin(9600);
   delay(1000);
   sendUBX( ubxRate10Hz, sizeof(ubxRate10Hz) );
@@ -43,7 +62,11 @@ void setup() {
   Serial2.flush();
   Serial2.end();
   Serial2.begin(115200);
-  SerialBT.begin("ESP32-GPS"); //Bluetooth device name
+
+  // Setup OLED Display
+
+  display.init();
+  display.setContrast(255);
 
 }
 int tmp;
@@ -51,17 +74,11 @@ int tmp;
 void loop() {
   if (Serial2.available()) {
     tmp = Serial2.read();
-    SerialBT.write(tmp);
-    Serial.write(tmp);
+//    Serial.write(tmp);
+    gps.encode(tmp);
   }
-  if (SerialBT.available()) {
-    tmp = SerialBT.read();
-    Serial2.write(tmp);
-    Serial.write(tmp);
-  }
-  if(Serial.available()){
-    tmp = Serial.read();
-    Serial.write(tmp);
-    Serial2.write(tmp);
+  if (gps.speed.isUpdated()){
+    Serial.println(gps.speed.kmph());
+    printSpeed();
   }
 }
