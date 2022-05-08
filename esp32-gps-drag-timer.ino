@@ -4,6 +4,7 @@
 #include "math.h"
 
 TinyGPSPlus gps;
+TinyGPSCustom satsInView(gps, "GPGSV", 3);
 SSD1306Wire  display(0x3c, 5, 4);
 
 #include "DisplayHelpers.h"
@@ -31,6 +32,6 @@ void loop() {
     gps.encode(Serial2.read());
   }
   if (gps.speed.isUpdated()){
-    printSpeed(ceil(gps.speed.kmph()));
+    printSpeed(floor(gps.speed.kmph()));
   }
 }
