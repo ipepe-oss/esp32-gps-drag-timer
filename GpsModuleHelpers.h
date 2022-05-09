@@ -5,8 +5,7 @@
 // 3.3V/VCC - red
 // GND - black
 
-const unsigned char ubxRate10Hz[] PROGMEM =
-  { 0x06,0x08,0x06,0x00,100,0x00,0x01,0x00,0x01,0x00 };
+const unsigned char ubxRate10Hz[] PROGMEM = { 0x06, 0x08, 0x06, 0x00, 100, 0x00, 0x01, 0x00, 0x01, 0x00 };
 
 void sendUBX( const unsigned char *progmemBytes, size_t len )
 {
@@ -26,11 +25,11 @@ void sendUBX( const unsigned char *progmemBytes, size_t len )
 
 }
 
-void setupGpsModule(){
-    Serial2.begin(9600);
-    delay(1000);
-    sendUBX( ubxRate10Hz, sizeof(ubxRate10Hz) );
-    Serial2.print("$PUBX,41,1,0003,0003,115200,0*1C\r\n"); // change baud rate to 115200
-    Serial2.flush();
-    Serial2.end();
+void setupGpsModule() {
+  Serial2.begin(9600);
+  delay(1000);
+  sendUBX( ubxRate10Hz, sizeof(ubxRate10Hz) );
+  Serial2.print("$PUBX,41,1,0003,0003,115200,0*1C\r\n"); // change baud rate to 115200
+  Serial2.flush();
+  Serial2.end();
 }
