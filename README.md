@@ -9,6 +9,11 @@ Measuring:
  * Continious measurement mode
  * Ability to put it into pocket or cubby in motorcycle and read measurements later
 
+## 3D Printed Case
+Design: https://cad.onshape.com/documents/e031c89e813c1e62de0598c2/w/f4ae6e15a49a281bed2da554/e/6e5b61646b861067f5acc4e7
+
+STL files avaialable in *3d_print_case* directory.
+
 ## Software
 
 TODO:
