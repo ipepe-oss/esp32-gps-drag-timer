@@ -8,7 +8,7 @@ TinyGPSPlus gps;
 TinyGPSCustom satsInView(gps, "GPGSV", 3);
 SSD1306Wire  display(0x3c, 5, 4);
 
-bool DEBUG = false;
+#define DEVELOPMENT_MODE
 
 unsigned int maxSpeed = 0;
 int tmpCurrentSpeed;
@@ -28,11 +28,18 @@ unsigned long from0to100kmhStart = 0;
 unsigned long from0to100kmhEnd = 0;
 
 int currentSpeed() {
-  if (DEBUG) {
+  #ifdef DEVELOPMENT_MODE
     return ceil(millis() / 1000.0) - 1;
-  } else {
+  #else
     return floor(gps.speed.kmph());
-  }
+  #endif
+}
+bool updateScreen(){
+  #ifdef DEVELOPMENT_MODE
+    return true;
+  #else
+    return gps.speed.isUpdated();
+  #endif
 }
 
 #include "DisplayHelpers.h"
@@ -54,13 +61,15 @@ void setup() {
   display.init();
   display.setContrast(255);
   printSpeed(0);
+
+  Serial.printf("\r\n\r\nBinary compiled on %s at %s\r\n", __DATE__, __TIME__);
 }
 
 void loop() {
   if (Serial2.available()) {
     gps.encode(Serial2.read());
   }
-  if (gps.speed.isUpdated() || DEBUG) {
+  if (updateScreen()) {
     tmpCurrentSpeed = currentSpeed();
     printSpeed(tmpCurrentSpeed);
     if (tmpCurrentSpeed > maxSpeed) {
