@@ -6,7 +6,7 @@
 
 TinyGPSPlus gps;
 TinyGPSCustom satsInView(gps, "GPGSV", 3);
-SSD1306Wire  display(0x3c, 5, 4);
+SSD1306Wire display(0x3c, 5, 4);
 
 bool DEBUG = false;
 
