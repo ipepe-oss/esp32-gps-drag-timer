@@ -18,7 +18,7 @@ void setupWifi() {
   Serial.print("Wifi Connected: "); Serial.println(WiFi.localIP());
 #else // set up as stand-alone WiFi Access Point
   WiFi.mode(WIFI_AP);
-  bool result =  WiFi.softAP(host, ""); // "" => no password
+  bool result =  WiFi.softAP(host, host);
   Serial.println(result == true ? "AP setup OK" : "AP setup failed");
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("Access Point IP address: ");

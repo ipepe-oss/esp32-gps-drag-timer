@@ -62,7 +62,10 @@ void setup() {
 void saveMeasurementToSpiffs() {
   String measurementPage = "";
   measurementPage += "<center><table>";
-  measurementPage += "<tr><td>Datetime:</td><td>" + dateFromGPS() + "</td></tr>";
+  measurementPage += "<tr><td>Date:</td><td>" + String(gps.date.value()) + "</td></tr>";
+  measurementPage += "<tr><td>Time:</td><td>" + String(gps.time.value()) + "</td></tr>";
+  measurementPage += "<tr><td>Sattelites:</td><td>" + String(gps.satellites.value()) + "</td></tr>";
+  measurementPage += "<tr><td>HDOP:</td><td>" + String(gps.hdop.value()) + "</td></tr>";
   measurementPage += String("<tr><td>Max:</td><td>" + String(maxSpeed) + "</td></tr>");
   measurementPage += String("<tr><td>0-10:</td><td>" + String(measurementTime(from0to10kmhStart, from0to10kmhEnd)) + "</td></tr>");
   measurementPage += String("<tr><td>0-20:</td><td>" + String(measurementTime(from0to20kmhStart, from0to20kmhEnd)) + "</td></tr>");
@@ -131,8 +134,11 @@ void loop() {
           from0to100kmhEnd = millis();
         }
       }
-    } else if (tmpCurrentSpeed == 0) {
+    } else if (tmpCurrentSpeed == 0 && currentMeasurementStart != 0) {
       currentMeasurementStart = 0;
+      if (from0to10kmhEnd != 0) {
+        saveMeasurementToSpiffs();
+      }
     }
   }
 }

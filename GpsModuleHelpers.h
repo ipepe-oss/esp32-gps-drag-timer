@@ -38,6 +38,6 @@ String dateFromGPS() {
 #ifdef DEVELOPMENT_MODE
   return String(millis());
 #else
-  return String(gps.date.value() + "_" + gps.time.value());
+  return String(gps.date.value()) + "_" + String(gps.time.value());
 #endif
 }
