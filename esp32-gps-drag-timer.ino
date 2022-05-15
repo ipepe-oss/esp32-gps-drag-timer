@@ -16,7 +16,7 @@ static File SpiffsFile;
 char charBuf[100];
 AsyncWebServer *server = NULL;
 
-#define DEVELOPMENT_MODE
+//#define DEVELOPMENT_MODE
 
 #include "wifiHelpers.h"
 #include "webServerHelper.h"
