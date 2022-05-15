@@ -2,7 +2,7 @@
 #include "devWifiCredentials.h"
 #endif
 
-const char* host = "esp32-gps-drag-timer";
+const char* host = "esp32-gps";
 
 void setupWifi() {
 #ifdef DEVELOPMENT_MODE
