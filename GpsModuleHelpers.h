@@ -34,10 +34,10 @@ void setupGpsModule() {
   Serial2.end();
 }
 
-String dateFromGPS(){
-  #ifdef DEVELOPMENT_MODE
-    return String(__DATE__) + String(__TIME__) + String(millis()/100));
-  #else
-    return String(gps.date.value() + "_" + gps.time.value());
-  #endif
+String dateFromGPS() {
+#ifdef DEVELOPMENT_MODE
+  return String(millis());
+#else
+  return String(gps.date.value() + "_" + gps.time.value());
+#endif
 }

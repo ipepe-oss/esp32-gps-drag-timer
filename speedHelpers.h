@@ -16,16 +16,16 @@ unsigned long from0to100kmhStart = 0;
 unsigned long from0to100kmhEnd = 0;
 
 int currentSpeed() {
-  #ifdef DEVELOPMENT_MODE
-    return ceil(millis() / 1000.0) - 1;
-  #else
-    return floor(gps.speed.kmph());
-  #endif
+#ifdef DEVELOPMENT_MODE
+  return ((int)(ceil(millis() / 300) - 1)) % 76;
+#else
+  return floor(gps.speed.kmph());
+#endif
 }
-bool updateScreen(){
-  #ifdef DEVELOPMENT_MODE
-    return true;
-  #else
-    return gps.speed.isUpdated();
-  #endif
+bool updateScreen() {
+#ifdef DEVELOPMENT_MODE
+  return true;
+#else
+  return gps.speed.isUpdated();
+#endif
 }

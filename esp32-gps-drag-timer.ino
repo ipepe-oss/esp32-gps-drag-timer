@@ -4,16 +4,22 @@
 #include "math.h"
 #include "ArduinoJson.h"
 #include "SPIFFS.h"
+#include "WiFi.h"
+#include "ESPAsyncWebServer.h"
 
+TaskHandle_t Cpu2Task;
 TinyGPSPlus gps;
 TinyGPSCustom satsInView(gps, "GPGSV", 3);
 SSD1306Wire display(0x3c, 5, 4);
 DynamicJsonDocument doc(1024);
 static File SpiffsFile;
 char charBuf[100];
+AsyncWebServer *server = NULL;
 
-//#define DEVELOPMENT_MODE
+#define DEVELOPMENT_MODE
 
+#include "wifiHelpers.h"
+#include "webServerHelper.h"
 #include "speedHelpers.h"
 #include "DisplayHelpers.h"
 #include "GpsModuleHelpers.h"
@@ -26,12 +32,6 @@ void setup() {
 
   Serial.begin(115200); // USB Serial
 
-  Serial.println("BUILD_TIMESTAMP " + String(__DATE__) + " " + String(__TIME__)); 
-  Serial.println("FREESPIFFS " + (SPIFFS.totalBytes() - SPIFFS.usedBytes()));
-  Serial.println("USEDSPIFFS " + SPIFFS.usedBytes());
-  Serial.println("TOTALSPIFFS " + SPIFFS.totalBytes());
-
-
   // Setup GPS Serial to 10hz and 115200
   setupGpsModule();
   Serial2.begin(115200);
@@ -41,7 +41,18 @@ void setup() {
   display.setContrast(255);
   printSpeed(0);
 
-  Serial.printf("\r\n\r\nBinary compiled on %s at %s\r\n", __DATE__, __TIME__);
+  if (!SPIFFS.begin(true)) {
+    Serial.println("SPIFFS Mount Failed");
+    return;
+  }
+  Serial.println("BUILD_TIMESTAMP " + String(__DATE__) + " " + String(__TIME__));
+  Serial.print("USEDSPIFFS: ");
+  Serial.println(SPIFFS.usedBytes());
+  Serial.print("TOTALSPIFFS: ");
+  Serial.println(SPIFFS.totalBytes());
+
+  setupWifi();
+  setupWebserver();
 }
 
 void loop() {
@@ -57,26 +68,36 @@ void loop() {
     if (tmpCurrentSpeed >= 1) {
       if (currentMeasurementStart == 0) {
         currentMeasurementStart = millis();
-        if(from0to10kmhStart != 0){
-          doc["date"] = dateFromGPS();
-          doc["0-10"] = String(measurementTime(from0to10kmhStart, from0to10kmhEnd));
-          doc["0-20"] = String(measurementTime(from0to20kmhStart, from0to20kmhEnd));
-          doc["0-30"] = String(measurementTime(from0to30kmhStart, from0to30kmhEnd));
-          doc["0-50"] = String(measurementTime(from0to50kmhStart, from0to50kmhEnd));
-          doc["0-80"] = String(measurementTime(from0to80kmhStart, from0to80kmhEnd));
-          doc["0-100"] = String(measurementTime(from0to100kmhStart, from0to100kmhEnd));
+        if (from0to10kmhStart != 0) {
+          String measurementPage = "";
+          measurementPage += "<center><table>";
+          measurementPage += "<tr><td>Datetime:</td><td>" + dateFromGPS() + "</td></tr>";
+          measurementPage += String("<tr><td>Max:</td><td>" + String(maxSpeed) + "</td></tr>");
+          measurementPage += String("<tr><td>0-10:</td><td>" + String(measurementTime(from0to10kmhStart, from0to10kmhEnd)) + "</td></tr>");
+          measurementPage += String("<tr><td>0-20:</td><td>" + String(measurementTime(from0to20kmhStart, from0to20kmhEnd)) + "</td></tr>");
+          measurementPage += String("<tr><td>0-30:</td><td>" + String(measurementTime(from0to30kmhStart, from0to30kmhEnd)) + "</td></tr>");
+          measurementPage += String("<tr><td>0-50:</td><td>" + String(measurementTime(from0to50kmhStart, from0to50kmhEnd)) + "</td></tr>");
+          measurementPage += String("<tr><td>0-80:</td><td>" + String(measurementTime(from0to80kmhStart, from0to80kmhEnd)) + "</td></tr>");
+          measurementPage += String("<tr><td>0-100:</td><td>" + String(measurementTime(from0to100kmhStart, from0to100kmhEnd)));
+          measurementPage += "</table></center>";
 
-
-          File file = SPIFFS.open(("/" + dateFromGPS() + ".json"), "w");
-          serializeJson(doc, file);
+          File file = SPIFFS.open(("/" + dateFromGPS() + ".html"), "w");
+          file.print(measurementPage);
           file.close();
-                    
+
           from0to10kmhStart = 0;
           from0to20kmhStart = 0;
           from0to30kmhStart = 0;
           from0to50kmhStart = 0;
           from0to80kmhStart = 0;
           from0to100kmhStart = 0;
+          from0to10kmhEnd = 0;
+          from0to20kmhEnd = 0;
+          from0to30kmhEnd = 0;
+          from0to50kmhEnd = 0;
+          from0to80kmhEnd = 0;
+          from0to100kmhEnd = 0;
+          maxSpeed = 0;
         }
       } else {
         if (from0to10kmhStart == 0 && tmpCurrentSpeed > 10) {
