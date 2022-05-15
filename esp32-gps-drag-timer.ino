@@ -2,7 +2,6 @@
 #include "SSD1306Wire.h"
 #include "TinyGPS++.h"
 #include "math.h"
-#include "ArduinoJson.h"
 #include "SPIFFS.h"
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
@@ -55,6 +54,24 @@ void setup() {
   setupWebserver();
 }
 
+void saveMeasurementToSpiffs() {
+  String measurementPage = "";
+  measurementPage += "<center><table>";
+  measurementPage += "<tr><td>Datetime:</td><td>" + dateFromGPS() + "</td></tr>";
+  measurementPage += String("<tr><td>Max:</td><td>" + String(maxSpeed) + "</td></tr>");
+  measurementPage += String("<tr><td>0-10:</td><td>" + String(measurementTime(from0to10kmhStart, from0to10kmhEnd)) + "</td></tr>");
+  measurementPage += String("<tr><td>0-20:</td><td>" + String(measurementTime(from0to20kmhStart, from0to20kmhEnd)) + "</td></tr>");
+  measurementPage += String("<tr><td>0-30:</td><td>" + String(measurementTime(from0to30kmhStart, from0to30kmhEnd)) + "</td></tr>");
+  measurementPage += String("<tr><td>0-50:</td><td>" + String(measurementTime(from0to50kmhStart, from0to50kmhEnd)) + "</td></tr>");
+  measurementPage += String("<tr><td>0-80:</td><td>" + String(measurementTime(from0to80kmhStart, from0to80kmhEnd)) + "</td></tr>");
+  measurementPage += String("<tr><td>0-100:</td><td>" + String(measurementTime(from0to100kmhStart, from0to100kmhEnd)));
+  measurementPage += "</table></center>";
+
+  File file = SPIFFS.open(("/" + String(millis()) + ".html"), "w");
+  file.print(measurementPage);
+  file.close();
+}
+
 void loop() {
   if (Serial2.available()) {
     gps.encode(Serial2.read());
@@ -69,21 +86,6 @@ void loop() {
       if (currentMeasurementStart == 0) {
         currentMeasurementStart = millis();
         if (from0to10kmhStart != 0) {
-          String measurementPage = "";
-          measurementPage += "<center><table>";
-          measurementPage += "<tr><td>Datetime:</td><td>" + dateFromGPS() + "</td></tr>";
-          measurementPage += String("<tr><td>Max:</td><td>" + String(maxSpeed) + "</td></tr>");
-          measurementPage += String("<tr><td>0-10:</td><td>" + String(measurementTime(from0to10kmhStart, from0to10kmhEnd)) + "</td></tr>");
-          measurementPage += String("<tr><td>0-20:</td><td>" + String(measurementTime(from0to20kmhStart, from0to20kmhEnd)) + "</td></tr>");
-          measurementPage += String("<tr><td>0-30:</td><td>" + String(measurementTime(from0to30kmhStart, from0to30kmhEnd)) + "</td></tr>");
-          measurementPage += String("<tr><td>0-50:</td><td>" + String(measurementTime(from0to50kmhStart, from0to50kmhEnd)) + "</td></tr>");
-          measurementPage += String("<tr><td>0-80:</td><td>" + String(measurementTime(from0to80kmhStart, from0to80kmhEnd)) + "</td></tr>");
-          measurementPage += String("<tr><td>0-100:</td><td>" + String(measurementTime(from0to100kmhStart, from0to100kmhEnd)));
-          measurementPage += "</table></center>";
-
-          File file = SPIFFS.open(("/" + dateFromGPS() + ".html"), "w");
-          file.print(measurementPage);
-          file.close();
 
           from0to10kmhStart = 0;
           from0to20kmhStart = 0;
