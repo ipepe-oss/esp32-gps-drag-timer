@@ -90,6 +90,21 @@ void loop() {
     if (tmpCurrentSpeed >= 1) {
       if (currentMeasurementStart == 0) {
         currentMeasurementStart = millis();
+        if (from0to10kmhEnd != 0) {
+          from0to10kmhStart = 0;
+          from0to20kmhStart = 0;
+          from0to30kmhStart = 0;
+          from0to50kmhStart = 0;
+          from0to80kmhStart = 0;
+          from0to100kmhStart = 0;
+          from0to10kmhEnd = 0;
+          from0to20kmhEnd = 0;
+          from0to30kmhEnd = 0;
+          from0to50kmhEnd = 0;
+          from0to80kmhEnd = 0;
+          from0to100kmhEnd = 0;
+          maxSpeed = 0;
+        }
       } else {
         if (from0to10kmhStart == 0 && tmpCurrentSpeed > 10) {
           from0to10kmhStart = currentMeasurementStart;
@@ -118,21 +133,6 @@ void loop() {
       }
     } else if (tmpCurrentSpeed == 0) {
       currentMeasurementStart = 0;
-      if (from0to10kmhEnd != 0) {
-        from0to10kmhStart = 0;
-        from0to20kmhStart = 0;
-        from0to30kmhStart = 0;
-        from0to50kmhStart = 0;
-        from0to80kmhStart = 0;
-        from0to100kmhStart = 0;
-        from0to10kmhEnd = 0;
-        from0to20kmhEnd = 0;
-        from0to30kmhEnd = 0;
-        from0to50kmhEnd = 0;
-        from0to80kmhEnd = 0;
-        from0to100kmhEnd = 0;
-        maxSpeed = 0;
-      }
     }
   }
 }
