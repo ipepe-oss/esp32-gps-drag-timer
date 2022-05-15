@@ -40,7 +40,14 @@ void setupWebserver() {
     Serial.println("Listing files stored on SPIFFS");
     File root = SPIFFS.open("/");
     File foundfile = root.openNextFile();
-    returnText += "<center><table><tr><th>Name</th><th></th></tr>";
+    returnText += "<center><table>";
+    returnText += "<tr><th>Name</th><th></th></tr>";
+    returnText += ("<tr><td>USEDSPIFFS:</td><td>");
+    returnText += String(SPIFFS.usedBytes());
+    returnText += ("</td><tr><td>TOTALSPIFFS:</td><td>");
+    returnText += String(SPIFFS.totalBytes());
+    returnText += "</td></tr>";
+
     while (foundfile) {
       returnText += "<tr><td><a href=\"/file?action=show&name=" + String(foundfile.name()) + "\">" + String(foundfile.name()) + "</a></td>";
       returnText += "<td><a onclick=\"return confirm('Are you sure?')\" href=\"/file?action=delete&name=" + String(foundfile.name()) + "\"><button>Delete</button></a></tr>";
